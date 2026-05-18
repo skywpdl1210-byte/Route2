@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fake News Literacy</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+
+    body {
+      background: #fff;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      color: #000;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    /* ── Custom Cursor ── */
+    #cursor-dot {
+      position: fixed;
+      width: 8px; height: 8px;
+      background: #000;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+    }
+    #cursor-q {
+      position: fixed;
+      font-size: 2.2vw;
+      font-weight: 700;
+      color: transparent;
+      -webkit-text-stroke: 1.5px #000;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(10px, 6px);
+      line-height: 1;
+      user-select: none;
+    }
+
+    /* ── Layout ── */
+    .page-row {
+      display: grid;
+      grid-template-columns: 270px 1fr;
+      padding-top: 80px;
+    }
+
+    .col-left {
+      padding-left: 67px;
+      padding-top: 8px;
+    }
+
+    .home-label {
+      font-size: 28pt;
+      font-weight: 700;
+      font-stretch: condensed;
+      line-height: 1;
+    }
+
+    .col-right {
+      padding-right: 67px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* 각 블록 */
+    .hero-block {
+      border-top: 1px solid #000;
+      padding-top: 16px;
+      padding-bottom: 80px;
+    }
+
+    .hero-block h2 {
+      font-size: 28pt;
+      font-weight: 700;
+      font-stretch: condensed;
+      line-height: 1;
+      margin-bottom: 24px;
+    }
+
+    .hero-block p {
+      font-size: 13pt;
+      font-weight: 400;
+      line-height: 1.75;
+      text-align: left;
+      word-break: normal;
+    }
+
+    /* ── Big Letters ── */
+    #section-letters {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      margin-top: 80px;
+      align-items: flex-end;
+      padding-left: 270px;
+    }
+
+    .big-letter-wrap {
+      flex: 1;
+      cursor: none;
+      overflow: hidden;
+    }
+
+    .big-letter {
+      font-size: 28vw;
+      font-weight: 700;
+      font-stretch: condensed;
+      line-height: 0.85;
+      letter-spacing: -0.04em;
+      user-select: none;
+      display: block;
+      color: #000;
+      transition: color 0.4s ease;
+    }
+
+    .big-letter-wrap:hover .big-letter {
+      color: #ccc;
+    }
+
+    /* ripple 글자 스타일 */
+    .word {
+      display: inline-block;
+      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      will-change: transform;
+    }
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal:nth-child(1) { transition-delay: 0s; }
+    .reveal:nth-child(2) { transition-delay: 0.12s; }
+    .reveal:nth-child(3) { transition-delay: 0.24s; }
+  </style>
+</head>
+<body>
+
+<div id="cursor-dot"></div>
+<div id="cursor-q">?</div>
+
+<!-- Hero -->
+<div class="page-row">
+  <div class="col-left">
+    <div class="home-label">HOME</div>
+  </div>
+  <div class="col-right">
+    <div class="hero-block">
+      <h2># 1</h2>
+      <p>
+        Research shows that older adults are significantly more likely to believe
+        and share misinformation compared to younger generations. One of the
+        key reasons behind this is confirmation bias.
+        <br><br>
+        Confirmation bias is the psychological tendency to seek out, favour, and
+        remember information that confirms what we already believe — while
+        ignoring evidence that contradicts it. In today's digital landscape, where
+        AI algorithms continuously feed us content tailored to our existing
+        preferences, this bias is silently amplified without us even noticing.
+      </p>
+    </div>
+    <div class="hero-block">
+      <h2># 2</h2>
+      <p>
+        We created an interactive web simulation designed to help older adults
+        better recognise and respond to fake news.
+        <br><br>
+        Rather than simply reading about AI and confirmation bias, this
+        experience is designed to be felt — through hands-on interactions that
+        make these invisible mechanisms visible.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Big Letters -->
+<section id="section-letters">
+  <div class="big-letter-wrap reveal" data-target="A">
+    <span class="big-letter" id="letter-a">A</span>
+  </div>
+  <div class="big-letter-wrap reveal" data-target="F">
+    <span class="big-letter" id="letter-f">F</span>
+  </div>
+  <div class="big-letter-wrap reveal" data-target="C">
+    <span class="big-letter" id="letter-c">C</span>
+  </div>
+</section>
+
+<script>
+  // cursor
+  const dot = document.getElementById('cursor-dot');
+  const q   = document.getElementById('cursor-q');
+  document.addEventListener('mousemove', e => {
+    dot.style.left = e.clientX + 'px';
+    dot.style.top  = e.clientY + 'px';
+    q.style.left   = e.clientX + 'px';
+    q.style.top    = e.clientY + 'px';
+  });
+
+  // A ↔ I
+  const letterA = document.getElementById('letter-a');
+  let idxA = 0;
+  setInterval(() => {
+    idxA = (idxA + 1) % 2;
+    letterA.textContent = ['A','I'][idxA];
+  }, 400);
+
+  // DATA CENTRE
+  const letterF = document.getElementById('letter-f');
+  const seqF = ['D','A','T','A','C','E','N','T','R','E'];
+  let idxF = 0;
+  setInterval(() => {
+    idxF = (idxF + 1) % seqF.length;
+    letterF.textContent = seqF[idxF];
+  }, 450);
+
+  // AI & DATA CENTRE
+  const letterC = document.getElementById('letter-c');
+  const seqC = ['A','I','&','D','A','T','A','C','E','N','T','R','E'];
+  let idxC = 0;
+  setInterval(() => {
+    idxC = (idxC + 1) % seqC.length;
+    letterC.textContent = seqC[idxC];
+  }, 500);
+
+  // ── 글자 단위로 쪼개기 ──
+  document.querySelectorAll('.hero-block p').forEach(p => {
+    p.innerHTML = p.innerHTML
+      .split(/(<br\s*\/?>)/gi)
+      .map(part => {
+        if (/^<br/i.test(part)) return part;
+        return part.split('')
+          .map(ch => ch === ' '
+            ? ' '
+            : `<span class="word">${ch}</span>`)
+          .join('');
+      })
+      .join('');
+  });
+
+  // ── Ripple scatter ──
+  const RIPPLE_RADIUS = 120;  // 파동 영향 반경 (px)
+  const RIPPLE_STRENGTH = 40; // 최대 밀려나는 거리 (px)
+
+  document.addEventListener('mousemove', e => {
+    const mx = e.clientX;
+    const my = e.clientY;
+
+    document.querySelectorAll('.word').forEach(word => {
+      const rect = word.getBoundingClientRect();
+      const wx = rect.left + rect.width  / 2;
+      const wy = rect.top  + rect.height / 2;
+
+      const dx   = wx - mx;
+      const dy   = wy - my;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < RIPPLE_RADIUS) {
+        // 파동 강도 — 가까울수록 강하게
+        const force = (1 - dist / RIPPLE_RADIUS) * RIPPLE_STRENGTH;
+        const angle = Math.atan2(dy, dx);
+        const moveX = Math.cos(angle) * force;
+        const moveY = Math.sin(angle) * force;
+        word.style.transform = `translate(${moveX}px, ${moveY}px)`;
+      } else {
+        word.style.transform = 'translate(0, 0)';
+      }
+    });
+  });
+
+  // 마우스 나가면 원위치
+  document.addEventListener('mouseleave', () => {
+    document.querySelectorAll('.word').forEach(w => {
+      w.style.transform = 'translate(0, 0)';
+    });
+  });
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // click
+  document.querySelectorAll('.big-letter-wrap').forEach(wrap => {
+    wrap.addEventListener('click', () => {
+      const target = wrap.dataset.target;
+      if (target === 'A') {
+        // 검정 화면으로 전환
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0; left: 0;
+          width: 100vw; height: 100vh;
+          background: #000;
+          opacity: 0;
+          z-index: 99999;
+          transition: opacity 0.6s ease;
+        `;
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => {
+          overlay.style.opacity = '1';
+        });
+        // 전환 후 페이지 이동
+        setTimeout(() => {
+          window.location.href = 'a.html';
+        }, 700);
+      } else if (target === 'F') {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0; left: 0;
+          width: 100vw; height: 100vh;
+          background: #000;
+          opacity: 0;
+          z-index: 99999;
+          transition: opacity 0.6s ease;
+        `;
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+        setTimeout(() => { window.location.href = 'd.html'; }, 700);
+      } else if (target === 'C') {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0; left: 0;
+          width: 100vw; height: 100vh;
+          background: #000;
+          opacity: 0;
+          z-index: 99999;
+          transition: opacity 0.6s ease;
+        `;
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+        setTimeout(() => { window.location.href = 'c.html'; }, 700);
+      }
+    });
+  });
+</script>
+</body>
+</html>
