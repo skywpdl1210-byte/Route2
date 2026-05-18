@@ -59,6 +59,33 @@
 <div id="cursor-dot"></div>
 <div id="cursor-q">!</div>
 
+<!-- Back Button -->
+<div id="back-btn" style="
+  position: fixed;
+  top: 28px; left: 36px;
+  z-index: 10000;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: none;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.6'"
+   onclick="goHome()">← Home</div>
+
+<script>
+function goHome() {
+  const ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;opacity:0;z-index:99999;transition:opacity 0.5s ease;';
+  document.body.appendChild(ov);
+  requestAnimationFrame(() => { ov.style.opacity = '1'; });
+  setTimeout(() => { window.location.href = 'index.html'; }, 600);
+}
+</script>
+
 <div id="page1"></div>
 <div id="page2">
   <div class="dc-text">
